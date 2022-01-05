@@ -1,0 +1,5 @@
+general:
+  enabled: true
+  glowstickItem: SOUL_TORCH
+  throwDistanceMultiplier: 3
+  glowstickDurationSeconds: 30
