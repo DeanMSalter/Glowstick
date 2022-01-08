@@ -28,16 +28,18 @@ public class Main extends JavaPlugin {
         }
         getConfig().options().copyDefaults(true);
         saveConfig();
-        config = new Config(getConfig());
-        config.initVariables();
+        config = new Config(this);
         if (!config.getEnabled()){
             Bukkit.getLogger().info(ChatColor.RED + " Disabled" + this.getName() + " As not enabled in config");
             return;
         }
         Bukkit.getLogger().info(ChatColor.GREEN + " Enabled" + this.getName());
         getServer().getPluginManager().registerEvents(new Listeners(config), this);
-
+        this.getCommand("reload").setExecutor(new Commands());
         Bukkit.getScheduler().runTaskTimer(this,() -> {
+            if (!config.getEnabled()){
+                return;
+            }
             for(World world : Bukkit.getServer().getWorlds()){
                 for(Entity entity : world.getEntities()){
                     if (entity.getType() == EntityType.DROPPED_ITEM && entity.isOnGround()) {
@@ -47,15 +49,11 @@ public class Main extends JavaPlugin {
                             Location aboveTorch = entity.getLocation();
                             aboveTorch.setY(aboveTorch.getY() + 1);
 
-                            Bukkit.getLogger().info(loc.getBlock().getType().toString());
-                            Bukkit.getLogger().info(aboveTorch.getBlock().getType().toString());
-
                             if ((loc.getBlock().getType().equals(Material.AIR) || loc.getBlock().getType().equals(Material.CAVE_AIR)) && (aboveTorch.getBlock().getType().equals(Material.AIR) || aboveTorch.getBlock().getType().equals(Material.CAVE_AIR))) {
                                 loc.getBlock().setType(config.getGlowstickMaterial());
                                 glowsticks.put(loc.getBlock(), 0);
                                 aboveTorch.getBlock().setType(Material.LIGHT);
                                 glowsticks.put(aboveTorch.getBlock(), 0);
-                                Bukkit.getLogger().info("Glowstick created at " + loc);
 
                                 entity.remove();
                             }
@@ -68,6 +66,9 @@ public class Main extends JavaPlugin {
 
 
         Bukkit.getScheduler().runTaskTimer(this,() -> {
+            if (!config.getEnabled()){
+                return;
+            }
             List<Block> removedGlowSticks = new ArrayList<>();
             for (Map.Entry<Block, Integer> entry : glowsticks.entrySet()) {
                 Block block = entry.getKey();
@@ -75,7 +76,6 @@ public class Main extends JavaPlugin {
                 if (iterations >= config.getGlowstickDurationSeconds()) {
                     block.setType(Material.AIR);
                     removedGlowSticks.add(block);
-                    Bukkit.getLogger().info("Glowstick removed at " + block.getLocation());
                 } else {
                     entry.setValue(iterations + 1);
                 }
@@ -91,7 +91,6 @@ public class Main extends JavaPlugin {
     public void onDisable() {
         Bukkit.getLogger().info(ChatColor.GREEN + "Disabled " + this.getName());
         for (Map.Entry<Block, Integer> entry : glowsticks.entrySet()) {
-            // put key and value separated by a colon
             entry.getKey().setType(Material.AIR);
         }
     }

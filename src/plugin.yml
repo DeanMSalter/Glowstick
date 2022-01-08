@@ -3,3 +3,8 @@ version: 1.0 # the plugin's version
 author: Deano3663
 main: McEssence.GlowStick.Main
 api-version: 1.18
+commands:
+  reload:
+    description: reload Glowstick
+    usage: /<command>
+    permission: glowstick.admin.reload

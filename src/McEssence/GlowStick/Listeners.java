@@ -14,6 +14,9 @@ public class Listeners implements Listener {
     }
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onItemDrop(PlayerDropItemEvent event){
+        if (!config.getEnabled()){
+            return;
+        }
         if (event.getItemDrop().getItemStack().getType() == config.getGlowstickMaterial()) {
             event.getItemDrop().setVelocity(event.getItemDrop().getVelocity().multiply(config.getThrowDistanceMultiplier()));
         }
